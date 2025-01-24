@@ -3,136 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kotak Gems</title>
+    <title>Crontol Trading</title>
     <style>
         body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
+            background: #f4f4f9;
         }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(5, 60px);
-            grid-gap: 10px;
+        .container {
+            width: 90%;
+            max-width: 400px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .header {
+            text-align: center;
             margin-bottom: 20px;
         }
-
-        .box {
-            width: 60px;
-            height: 60px;
-            background-color: #ccc; /* Kotak abu-abu */
-            border-radius: 5px; /* Agar sudutnya tidak lancip */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .box.green {
-            background-color: #32CD32; /* Warna hijau untuk gems */
-        }
-
-        .box.red {
-            background-color: #FF6347; /* Warna merah untuk kotak terpilih */
-        }
-
-        .status {
-            font-size: 24px;
-            font-weight: bold;
+        .header h1 {
+            margin: 0;
             color: #333;
         }
-
-        .restart {
+        .header p {
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto 10px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        .crypto-display {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .crypto-display img {
+            width: 50px;
+            height: 50px;
+        }
+        .trade-section {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .trade-section button {
             padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
+            background: #007bff;
+            color: #fff;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
         }
-
-        .restart:hover {
-            background-color: #0056b3;
+        .trade-section input {
+            width: 50px;
+            text-align: center;
+        }
+        .transaction-log {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .transaction-log button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+            width: 80%;
+            max-width: 400px;
+        }
+        .popup h3 {
+            margin-top: 0;
+        }
+        .popup-content {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .popup-content ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .popup-content li {
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .popup button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .account-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #007bff;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <div class="grid">
-        <!-- Kotak akan ditambahkan oleh JavaScript -->
+    <div id="login-register-container">
+        <div class="container">
+            <div class="header">
+                <h1>Login/Register</h1>
+            </div>
+            <input type="text" id="username" placeholder="Username" style="width: 100%; margin-bottom: 10px; padding: 8px;">
+            <input type="password" id="password" placeholder="Password" style="width: 100%; margin-bottom: 10px; padding: 8px;">
+            <button onclick="register()" style="width: 48%; margin-right: 2%;">Register</button>
+            <button onclick="login()" style="width: 48%;">Login</button>
+        </div>
     </div>
-    <div class="status" id="status"></div> <!-- Menampilkan status (Win/Defeat) -->
-    <button class="restart" id="restart">Restart</button> <!-- Tombol untuk memulai ulang -->
+
+    <div id="trading-container" style="display: none;">
+        <div class="account-info" onclick="showAccountInfo()">
+            <span id="account-name"></span>
+        </div>
+        <div class="container">
+            <div class="header">
+                <h1>Crontol Trading</h1>
+                <p>IDR Balance: <span id="idr-balance">20000</span></p>
+            </div>
+
+            <div class="crypto-display">
+                <img src="images/crontol.png" alt="Crontol">
+                <p>Coin Crontol Owned: <span id="crontol-owned">0</span></p>
+                <p>Supply Coin: <span id="supply-coin">1000</span></p>
+            </div>
+
+            <canvas id="price-chart" width="350" height="300"></canvas>
+
+            <div class="crypto-display">
+                <p>Crontol Price: <span id="crontol-price">1000</span></p>
+            </div>
+
+            <div class="trade-section">
+                <button id="buy-btn">Buy</button>
+                <div>
+                    <input type="number" id="trade-amount" placeholder="1" min="1">
+                </div>
+                <button id="sell-btn">Sell</button>
+            </div>
+
+            <div class="transaction-log">
+                <button onclick="showPopup()">View Recent Transactions</button>
+            </div>
+        </div>
+
+        <div class="popup" id="transaction-popup">
+            <h3>Recent Transactions</h3>
+            <div class="popup-content">
+                <ul id="transaction-list"></ul>
+            </div>
+            <button onclick="hidePopup()">Close</button>
+        </div>
+    </div>
+
     <script>
-        const grid = document.querySelector('.grid');
-        const statusText = document.getElementById('status');
-        const restartButton = document.getElementById('restart');
-        const totalBoxes = 25;
-        let greenCount = 0;
+        let user = JSON.parse(localStorage.getItem("user")) || { idrBalance: 20000, crontolBalance: 0, name: "", tradeCount: 0 };
+        let crontolPrice = 1000;
+        let priceHistory = JSON.parse(localStorage.getItem("priceHistory")) || [1000];
+        let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+        let crontolSupply = 1000;
 
-        // Fungsi untuk memulai permainan
-        function startGame() {
-            // Reset grid dan status
-            grid.innerHTML = '';
-            statusText.textContent = '';
-            greenCount = 0;
+        const updatePrice = (isBuy, amount) => {
+            const tradeImpact = isBuy ? -10 : 10; // Harga turun jika buy dan naik jika sell
+            crontolPrice += tradeImpact;
+            crontolPrice = Math.max(500, crontolPrice);
+            priceHistory.push(crontolPrice);
+            if (priceHistory.length > 50) priceHistory.shift();
+            localStorage.setItem("priceHistory", JSON.stringify(priceHistory));
+            drawChart();
+        };
 
-            // Membuat kotak di grid
-            for (let i = 0; i < totalBoxes; i++) {
-                const box = document.createElement('div');
-                box.classList.add('box');
-                grid.appendChild(box);
-            }
-
-            // Memilih kotak acak menjadi merah
-            const boxes = document.querySelectorAll('.box');
-            const randomIndex = Math.floor(Math.random() * totalBoxes);
-            boxes[randomIndex].dataset.isRed = "true"; // Tandai kotak merah dengan atribut data
-
-            // Menambahkan event listener ke setiap kotak
-            boxes.forEach((box, index) => {
-                box.addEventListener('click', () => {
-                    if (box.dataset.isRed === "true") {
-                        // Jika kotak merah diklik, tampilkan "Defeat"
-                        box.classList.add('red');
-                        statusText.textContent = "nuub kalah cupu😹";
-                        disableAllBoxes();
-                    } else if (!box.classList.contains('green')) {
-                        // Jika kotak belum hijau, ubah menjadi hijau
-                        box.classList.add('green');
-                        greenCount++;
-
-                        // Cek apakah semua kotak hijau
-                        if (greenCount === totalBoxes - 1) {
-                            statusText.textContent = "Win";
-                        }
-                    }
-                });
+        const drawChart = () => {
+            const canvas = document.getElementById("price-chart");
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height - priceHistory[0] / 10);
+            priceHistory.forEach((price, index) => {
+                const x = (index / priceHistory.length) * canvas.width;
+                const y = canvas.height - price / 10;
+                ctx.lineTo(x, y);
             });
-        }
+            ctx.strokeStyle = "#007bff";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        };
 
-        // Fungsi untuk menonaktifkan semua kotak
-        function disableAllBoxes() {
-            const boxes = document.querySelectorAll('.box');
-            boxes.forEach(box => {
-                box.style.pointerEvents = 'none'; // Nonaktifkan klik pada semua kotak
-                if (box.dataset.isRed === "true") {
-                    box.classList.add('red'); // Tampilkan kotak merah saat permainan selesai
-                }
-            });
-        }
+        const saveUserData = () => {
+            localStorage.setItem("user", JSON.stringify(user));
+            document.getElementById("idr-balance").innerText = user.idrBalance.toFixed(2);
+            document.getElementById("crontol-owned").innerText = user.crontolBalance;
+            document.getElementById("supply-coin").innerText = crontolSupply;
+        };
 
-        // Event listener untuk tombol restart
-        restartButton.addEventListener('click', startGame);
+        const buy = () => { ... };
+        const sell = () => { ... };
 
-        // Memulai permainan pertama kali
-        startGame();
+        const register = () => { ... };
+        const login = () => { ... };
+
+        drawChart();
     </script>
 </body>
-</html>
+                                           </html
