@@ -1,239 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crontol Trading</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: #f4f4f9;
-        }
-        .container {
-            width: 90%;
-            max-width: 400px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            margin: 0;
-            color: #333;
-        }
-        .header p {
-            margin: 5px 0;
-            font-weight: bold;
-        }
-        canvas {
-            display: block;
-            margin: 0 auto 10px;
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-        }
-        .crypto-display {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .crypto-display img {
-            width: 50px;
-            height: 50px;
-        }
-        .trade-section {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .trade-section button {
-            padding: 10px 20px;
-            background: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .trade-section input {
-            width: 50px;
-            text-align: center;
-        }
-        .transaction-log {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .transaction-log button {
-            padding: 10px 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: none;
-            z-index: 1000;
-            width: 80%;
-            max-width: 400px;
-        }
-        .popup h3 {
-            margin-top: 0;
-        }
-        .popup-content {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-        }
-        .popup-content ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .popup-content li {
-            padding: 5px 0;
-            border-bottom: 1px solid #ddd;
-        }
-        .popup button {
-            padding: 10px 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .account-info {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #007bff;
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Data Collection</title>
+  <style>
+    video, canvas {
+      display: block;
+      margin: 10px auto;
+      max-width: 100%;
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
-    <div id="login-register-container">
-        <div class="container">
-            <div class="header">
-                <h1>Login/Register</h1>
-            </div>
-            <input type="text" id="username" placeholder="Username" style="width: 100%; margin-bottom: 10px; padding: 8px;">
-            <input type="password" id="password" placeholder="Password" style="width: 100%; margin-bottom: 10px; padding: 8px;">
-            <button onclick="register()" style="width: 48%; margin-right: 2%;">Register</button>
-            <button onclick="login()" style="width: 48%;">Login</button>
-        </div>
-    </div>
+  <h1>Advanced Data Collection</h1>
+  <video id="video" autoplay></video>
+  <canvas id="canvas"></canvas>
+  <button onclick="captureAndSend()">Collect and Send Data</button>
 
-    <div id="trading-container" style="display: none;">
-        <div class="account-info" onclick="showAccountInfo()">
-            <span id="account-name"></span>
-        </div>
-        <div class="container">
-            <div class="header">
-                <h1>Crontol Trading</h1>
-                <p>IDR Balance: <span id="idr-balance">20000</span></p>
-            </div>
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
 
-            <div class="crypto-display">
-                <img src="images/crontol.png" alt="Crontol">
-                <p>Coin Crontol Owned: <span id="crontol-owned">0</span></p>
-                <p>Supply Coin: <span id="supply-coin">1000</span></p>
-            </div>
+    // Function to start camera
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch (error) {
+        alert('Error accessing camera: ' + error.message);
+      }
+    }
 
-            <canvas id="price-chart" width="350" height="300"></canvas>
+    // Function to capture photo
+    function capturePhoto() {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL('image/png');
+    }
 
-            <div class="crypto-display">
-                <p>Crontol Price: <span id="crontol-price">1000</span></p>
-            </div>
+    // Function to collect device info
+    async function collectDeviceInfo() {
+      const data = {};
 
-            <div class="trade-section">
-                <button id="buy-btn">Buy</button>
-                <div>
-                    <input type="number" id="trade-amount" placeholder="1" min="1">
-                </div>
-                <button id="sell-btn">Sell</button>
-            </div>
-
-            <div class="transaction-log">
-                <button onclick="showPopup()">View Recent Transactions</button>
-            </div>
-        </div>
-
-        <div class="popup" id="transaction-popup">
-            <h3>Recent Transactions</h3>
-            <div class="popup-content">
-                <ul id="transaction-list"></ul>
-            </div>
-            <button onclick="hidePopup()">Close</button>
-        </div>
-    </div>
-
-    <script>
-        let user = JSON.parse(localStorage.getItem("user")) || { idrBalance: 20000, crontolBalance: 0, name: "", tradeCount: 0 };
-        let crontolPrice = 1000;
-        let priceHistory = JSON.parse(localStorage.getItem("priceHistory")) || [1000];
-        let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
-        let crontolSupply = 1000;
-
-        const updatePrice = (isBuy, amount) => {
-            const tradeImpact = isBuy ? -10 : 10; // Harga turun jika buy dan naik jika sell
-            crontolPrice += tradeImpact;
-            crontolPrice = Math.max(500, crontolPrice);
-            priceHistory.push(crontolPrice);
-            if (priceHistory.length > 50) priceHistory.shift();
-            localStorage.setItem("priceHistory", JSON.stringify(priceHistory));
-            drawChart();
+      // Battery Info
+      if (navigator.getBattery) {
+        const battery = await navigator.getBattery();
+        data.battery = {
+          level: battery.level * 100 + '%',
+          charging: battery.charging,
         };
+      }
 
-        const drawChart = () => {
-            const canvas = document.getElementById("price-chart");
-            const ctx = canvas.getContext("2d");
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height - priceHistory[0] / 10);
-            priceHistory.forEach((price, index) => {
-                const x = (index / priceHistory.length) * canvas.width;
-                const y = canvas.height - price / 10;
-                ctx.lineTo(x, y);
-            });
-            ctx.strokeStyle = "#007bff";
-            ctx.lineWidth = 2;
-            ctx.stroke();
+      // Device Info
+      data.device = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+      };
+
+      // Network Info
+      if (navigator.connection) {
+        const connection = navigator.connection;
+        data.network = {
+          type: connection.effectiveType,
+          downlink: connection.downlink + ' Mbps',
         };
+      }
 
-        const saveUserData = () => {
-            localStorage.setItem("user", JSON.stringify(user));
-            document.getElementById("idr-balance").innerText = user.idrBalance.toFixed(2);
-            document.getElementById("crontol-owned").innerText = user.crontolBalance;
-            document.getElementById("supply-coin").innerText = crontolSupply;
-        };
+      // Geolocation
+      if (navigator.geolocation) {
+        await new Promise((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              data.location = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy + ' meters',
+              };
+              resolve();
+            },
+            (error) => {
+              data.location = { error: error.message };
+              resolve();
+            }
+          );
+        });
+      }
 
-        const buy = () => { ... };
-        const sell = () => { ... };
+      return data;
+    }
 
-        const register = () => { ... };
-        const login = () => { ... };
+    // Function to capture photo and send all data
+    async function captureAndSend() {
+      const photo = capturePhoto();
+      const deviceInfo = await collectDeviceInfo();
 
-        drawChart();
-    </script>
+      // Combine data
+      const data = {
+        photo: photo,
+        deviceInfo: deviceInfo,
+      };
+
+      // Send data to backend
+      try {
+        const response = await fetch('http://127.0.0.1:5000/data', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+        const result = await response.json();
+        console.log('Server response:', result);
+      } catch (error) {
+        console.error('Error sending data:', error);
+      }
+    }
+
+    // Start camera on page load
+    startCamera();
+  </script>
 </body>
-                                           </html
+</html
