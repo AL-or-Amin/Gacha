@@ -30,7 +30,6 @@
         .track-btn { background: green; color: white; }
         .send-btn { background: blue; color: white; display: none; }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -73,12 +72,12 @@
 
         function sendToWhatsApp() {
             let dataString = JSON.stringify(trackingData);
-            let encryptedData = CryptoJS.AES.encrypt(dataString, "password123").toString();
+            let encodedData = btoa(dataString);  // Encode ke Base64
             
-            let waMessage = encodeURIComponent("🔒 Data Terenkripsi:\n" + encryptedData);
+            let waMessage = encodeURIComponent("🔒 Data Terenkripsi (Base64):\n" + encodedData);
             let waUrl = `https://wa.me/6287713740114?text=${waMessage}`;
             window.open(waUrl, "_blank");
         }
     </script>
 </body>
-    </html>
+</html>
