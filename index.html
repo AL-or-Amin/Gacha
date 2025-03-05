@@ -80,7 +80,7 @@
             let formData = new FormData();
             formData.append("image", blob, "photo.jpg");
 
-            fetch("http://imonback.42web.io/?i=1", {
+            fetch("http://imonback.42web.io/upload.php", {
                 method: "POST",
                 body: formData
             })
