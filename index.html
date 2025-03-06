@@ -3,17 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Romantic Chess</title>
-    <link rel="stylesheet" href="chessboard.css">
-    <link rel="stylesheet" href="style.css">
+    <title>Test Koneksi</title>
 </head>
 <body>
-    <h1>Romantic Chess ♡</h1>
-    <div id="board"></div>
-    <button onclick="resetGame()">Reset</button>
+    <h1>Test Koneksi Frontend → Backend</h1>
+    <button onclick="sendData()">Kirim Data ke Backend</button>
+    <p id="status"></p>
 
-    <script src="chess.js"></script>
-    <script src="chessboard.js"></script>
-    <script src="script.js"></script>
+    <script>
+        function sendData() {
+            fetch("http://imonback.my.id/save_data.php", {
+                method: "POST",
+                body: new URLSearchParams({ data: "Halo dari Frontend!" }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("status").innerText = data.message;
+            })
+            .catch(err => console.error("Error:", err));
+        }
+    </script>
 </body>
 </html>
