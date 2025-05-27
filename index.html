@@ -1,28 +1,69 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Koneksi</title>
+  <meta charset="UTF-8">
+  <title>Foto Sekali Lihat</title>
+  <style>
+    body {
+      background: black;
+      color: white;
+      text-align: center;
+      font-size: 2rem;
+      user-select: none;
+      margin-top: 20vh;
+    }
+    #foto, #text {
+      display: none;
+    }
+    #visitor {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      font-size: 1.5rem;
+    }
+  </style>
 </head>
 <body>
-    <h1>Test Koneksi Frontend → Backend</h1>
-    <button onclick="sendData()">Kirim Data ke Backend</button>
-    <p id="status"></p>
+  <div id="visitor">👁️0</div>
+  <img id="foto" src="assets/lina.png" alt="Foto" width="300">
+  <div id="text">udah</div>
 
-    <script>
-        function sendData() {
-            fetch("http://imonback.my.id/save_data.php", {
-                method: "POST",
-                body: new URLSearchParams({ data: "Halo dari Frontend!" }),
-                headers: { "Content-Type": "application/x-www-form-urlencoded" }
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById("status").innerText = data.message;
-            })
-            .catch(err => console.error("Error:", err));
-        }
-    </script>
+  <script>
+    // Visitor counter (local simulation)
+    let total = localStorage.getItem("visitorCount") || 0;
+    if (!sessionStorage.getItem("visitedThisSession")) {
+      total++;
+      localStorage.setItem("visitorCount", total);
+      sessionStorage.setItem("visitedThisSession", true);
+    }
+    document.getElementById("visitor").textContent = "👁️" + total;
+
+    // Tampilkan konten hanya sekali
+    if (localStorage.getItem("sudahLihat")) {
+      document.body.innerHTML = "<h2>Konten sudah tidak bisa dilihat lagi.</h2>";
+    } else {
+      setTimeout(() => {
+        document.getElementById("foto").style.display = "block";
+        setTimeout(() => {
+          document.getElementById("foto").style.display = "none";
+          document.getElementById("text").style.display = "block";
+          setTimeout(() => {
+            document.getElementById("text").style.display = "none";
+            document.body.innerHTML = "<h2>Konten sudah tidak bisa dilihat lagi.</h2>";
+            localStorage.setItem("sudahLihat", "true");
+          }, 1000);
+        }, 2000);
+      }, 1000);
+    }
+
+    // Usaha cegah screenshot (terbatas)
+    document.addEventListener("keydown", e => {
+      if (e.key === "PrintScreen") {
+        navigator.clipboard.writeText("Screenshot tidak diizinkan");
+        alert("Screenshot dicegah!");
+        document.body.style.display = "none";
+      }
+    });
+  </script>
 </body>
 </html>
